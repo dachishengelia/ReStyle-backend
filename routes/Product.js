@@ -1,9 +1,9 @@
-// routes/product.js
-const express = require('express');
-const router = express.Router();
-const Product = require('../models/Product');
+import express from 'express';
+import Product from '../models/products.js'; 
 
-// POST /api/products
+const router = express.Router();
+
+
 router.post('/', async (req, res) => {
   try {
     const { name, description, price, imageUrl } = req.body;
@@ -15,4 +15,4 @@ router.post('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

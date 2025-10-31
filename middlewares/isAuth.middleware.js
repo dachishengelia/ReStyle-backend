@@ -1,23 +1,33 @@
-const jwt = require('jsonwebtoken')
-require('dotenv').config()
+import jwt from "jsonwebtoken";
 
-const isAuth = async (req, res, next) => {
-    const headers = req.headers['authorization']
-    if(!headers) {
-        return res.status(401).json({message: "you dont have permition"})
-    }
+const isAuth = (req, res, next) => {
+  const headers = req.headers["authorization"];
+  if (!headers)
+    return res.status(401).json({ message: "No permission" });
 
-    const [type, token] = headers.split(' ')
-    try{
-        const payload = await jwt.verify(token, process.env.JWT_SECRET)
-        req.userId = payload.userIdc
-        req.role = payload.role
+  const [type, token] = headers.split(" ");
+  if (!token)
+    return res.status(401).json({ message: "No token provided" });
 
-        next()
-    }catch(e){
-        return res.status(401).json({message: "you dont have permition"})
-    }
-}
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = payload.id;
+    req.role = payload.role;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
 
-module.exports = isAuth
 
+export const isAdmin = (req, res, next) => {
+  if (req.role !== "admin") return res.status(403).json({ message: "Forbidden" });
+  next();
+};
+
+export const isSeller = (req, res, next) => {
+  if (req.role !== "seller") return res.status(403).json({ message: "Forbidden" });
+  next();
+};
+
+export default isAuth;

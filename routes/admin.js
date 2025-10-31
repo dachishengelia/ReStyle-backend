@@ -1,11 +1,11 @@
 import express from "express";
 import User from "../models/User.js";
-import { verifyToken, isAdmin } from "../middleware/auth.js";
+import isAuth, { isAdmin } from "../middlewares/isAuth.middleware.js";
 
 const router = express.Router();
 
 
-router.get("/users", verifyToken, isAdmin, async (req, res) => {
+router.get("/users", isAuth, isAdmin, async (req, res) => {
   try {
     const users = await User.find({}, "username email role createdAt").lean();
     res.json(users);
@@ -15,7 +15,7 @@ router.get("/users", verifyToken, isAdmin, async (req, res) => {
 });
 
 
-router.patch("/users/:id/role", verifyToken, isAdmin, async (req, res) => {
+router.patch("/users/:id/role", isAuth, isAdmin, async (req, res) => {
   const { role } = req.body;
   try {
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
@@ -26,7 +26,7 @@ router.patch("/users/:id/role", verifyToken, isAdmin, async (req, res) => {
 });
 
 
-router.delete("/users/:id", verifyToken, isAdmin, async (req, res) => {
+router.delete("/users/:id", isAuth, isAdmin, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.json({ message: "User deleted successfully" });
@@ -36,7 +36,7 @@ router.delete("/users/:id", verifyToken, isAdmin, async (req, res) => {
 });
 
 
-router.get("/stats", verifyToken, isAdmin, async (req, res) => {
+router.get("/stats", isAuth, isAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const buyers = await User.countDocuments({ role: "buyer" });
