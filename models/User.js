@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     googleId: String,
     cart: [
       {
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" }, // Corrected field name
         quantity: { type: Number, default: 1 },
       },
     ],

@@ -7,7 +7,6 @@ import cors from "cors";
 
 // Models
 import User from "./models/User.js";
-import Product from "./models/products.js";
 
 // Routes
 import authRoutes from "./routes/auth.js";
@@ -37,7 +36,9 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true,
+    credentials: true, // Allow cookies to be sent
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allow all HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
   })
 );
 

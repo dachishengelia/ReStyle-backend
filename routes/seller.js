@@ -13,7 +13,7 @@ router.post("/products", isAuth, isSeller, async (req, res) => {
       name,
       description,
       price,
-      seller: req.userId, 
+      sellerId: req.userId, // Corrected field name
     });
     await product.save();
     res.status(201).json(product);

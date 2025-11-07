@@ -62,7 +62,7 @@ router.post('/products', async (req, res) => {
       price,
       description,
       category,
-      sellerId,
+      sellerId, // Corrected field name
     });
 
     await product.save();
