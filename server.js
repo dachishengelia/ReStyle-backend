@@ -23,13 +23,13 @@ app.use(cookieParser());
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // Local frontend
-  process.env.FRONTEND_VERCEL_URL, // Live frontend
+  "https://re-style-frontend.vercel.app", // Live frontend
+  "http://localhost:5173" // Local frontend for testing
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
