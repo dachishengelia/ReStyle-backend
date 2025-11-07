@@ -9,5 +9,5 @@ const productSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
 });
 
-const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.models.Product || mongoose.model("Product", productSchema); // Check if model exists
 export default Product;
