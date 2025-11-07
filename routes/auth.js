@@ -11,7 +11,6 @@ const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID;
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-
 router.post("/register", async (req, res) => {
   const { username, email, password, role } = req.body;
   if (!username || !email || !password)
@@ -45,21 +44,19 @@ router.post("/register", async (req, res) => {
   }
 });
 
-
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
     return res.status(400).json({ message: "Email and password required" });
 
   try {
-    await connectToDatabase();
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
@@ -68,7 +65,13 @@ router.post("/login", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      })
+      .cookie("user", JSON.stringify({ id: user._id, username: user.username, email: user.email, role: user.role }), {
+        httpOnly: false, // Allow frontend access
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
@@ -77,6 +80,15 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/logout", (req, res) => {
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    })
+    .json({ message: "Logged out successfully" });
+});
 
 router.post("/google-login", async (req, res) => {
   const { id_token } = req.body;
@@ -124,6 +136,27 @@ router.post("/google-login", async (req, res) => {
   } catch (err) {
     console.error("Google login error:", err);
     res.status(401).json({ message: "Invalid ID token" });
+  }
+});
+
+router.get("/me", async (req, res) => {
+  const token = req.cookies.token; // Ensure the token is sent as a cookie
+  if (!token) {
+    console.error("No token provided in /auth/me");
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id, "username email role").lean();
+    if (!user) {
+      console.error("User not found in /auth/me");
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ user });
+  } catch (err) {
+    console.error("Error verifying token in /auth/me:", err.message);
+    res.status(401).json({ message: "Invalid token" });
   }
 });
 

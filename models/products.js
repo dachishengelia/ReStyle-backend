@@ -1,17 +1,11 @@
-import express from 'express';
-import Product from "../models/products.js"; 
+import mongoose from "mongoose";
 
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: String,
+  price: { type: Number, required: true },
+  imageUrl: String,
+  seller: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+}, { timestamps: true });
 
-const router = express.Router();
-
-
-router.get("/", async (req, res) => {
-  try {
-    const products = await Product.find().lean();
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-export default router;
+export default mongoose.model("Product", productSchema);

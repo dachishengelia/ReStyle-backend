@@ -1,6 +1,5 @@
-const cloudinary = require("cloudinary").v2;
-const multer = require("multer");
-require("dotenv").config();
+import { v2 as cloudinary } from "cloudinary";
+
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,32 +7,53 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
-const uploadToCloudinary = (req, res, next) => {
-  if (!req.file) return next();
-
-  cloudinary.uploader
-    .upload_stream(
-      { folder: "restyle_uploads", allowed_formats: ["jpg", "png", "jpeg", "webp", "avif"] },
-      (err, result) => {
-        if (err) return next(err);
-        req.file.path = result.secure_url;  
-        req.file.filename = result.public_id; 
-        next();
-      }
-    )
-    .end(req.file.buffer);
-};
-
-const deleteFromCloudinary = async (publicId) => {
+/**
+ * Uploads an image to Cloudinary.
+ * @param {string} filePath - The local file path of the image to upload.
+ * @param {object} options - Additional options for the upload (e.g., folder, tags).
+ * @returns {Promise<object>} - The result of the upload operation.
+ */
+export const uploadToCloudinary = async (filePath, options = {}) => {
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
-    console.log("Cloudinary delete result:", result);
-  } catch (error) {
-    console.error("Error deleting from Cloudinary:", error);
+    const result = await cloudinary.uploader.upload(filePath, options);
+    return result;
+  } catch (err) {
+    console.error("Error uploading to Cloudinary:", err.message);
+    throw new Error("Cloudinary upload failed. Please try again later.");
   }
 };
 
-module.exports = { upload, uploadToCloudinary, deleteFromCloudinary };
+/**
+ * Deletes an image from Cloudinary.
+ * @param {string} publicId - The public ID of the image to delete.
+ * @returns {Promise<object>} - The result of the deletion operation.
+ */
+export const deleteFromCloudinary = async (publicId) => {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId);
+    if (result.result !== "ok") {
+      throw new Error(`Failed to delete image with public ID: ${publicId}`);
+    }
+    return result;
+  } catch (err) {
+    console.error("Error deleting from Cloudinary:", err.message);
+    throw new Error("Cloudinary deletion failed. Please try again later.");
+  }
+};
+
+/**
+ * Retrieves details of a resource from Cloudinary.
+ * @param {string} publicId - The public ID of the resource to retrieve.
+ * @returns {Promise<object>} - The resource details.
+ */
+export const getResourceFromCloudinary = async (publicId) => {
+  try {
+    const resource = await cloudinary.api.resource(publicId);
+    return resource;
+  } catch (err) {
+    console.error("Error fetching resource from Cloudinary:", err.message);
+    throw new Error("Failed to fetch resource from Cloudinary.");
+  }
+};
+
+export default cloudinary;

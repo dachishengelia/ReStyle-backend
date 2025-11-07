@@ -4,7 +4,6 @@ import isAuth, { isSeller } from "../middlewares/isAuth.middleware.js";
 
 const router = express.Router();
 
-
 router.post("/products", isAuth, isSeller, async (req, res) => {
   const { name, description, price } = req.body;
   if (!name || !price) return res.status(400).json({ message: "Name and price are required" });
@@ -23,7 +22,6 @@ router.post("/products", isAuth, isSeller, async (req, res) => {
   }
 });
 
-
 router.get("/products", isAuth, isSeller, async (req, res) => {
   try {
     const products = await Product.find({ seller: req.userId }).lean();
@@ -32,7 +30,6 @@ router.get("/products", isAuth, isSeller, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 router.patch("/products/:id", isAuth, isSeller, async (req, res) => {
   try {
@@ -47,7 +44,6 @@ router.patch("/products/:id", isAuth, isSeller, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 router.delete("/products/:id", isAuth, isSeller, async (req, res) => {
   try {
