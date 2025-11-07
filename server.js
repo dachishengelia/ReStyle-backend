@@ -24,7 +24,7 @@ console.log("Frontend URL:", process.env.FRONTEND_URL);
 
 app.use(
   cors({
-    origin: "https://re-style-frontend.vercel.app", // Explicitly allow the frontend domain
+    origin: process.env.FRONTEND_URL || "https://re-style-frontend.vercel.app", // Explicitly allow the frontend domain
     credentials: true, // Allow cookies to be sent
   })
 );
