@@ -22,23 +22,10 @@ app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
-const allowedOrigins = [
-  "https://re-style-frontend.vercel.app", // Live frontend
-  "http://localhost:5173" // Local frontend for testing
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: "https://re-style-frontend.vercel.app", // Explicitly allow the frontend domain
     credentials: true, // Allow cookies to be sent
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allow all HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
   })
 );
 

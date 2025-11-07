@@ -67,12 +67,6 @@ router.post("/login", async (req, res) => {
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
-      .cookie("user", JSON.stringify({ id: user._id, username: user.username, email: user.email, role: user.role }), {
-        httpOnly: false, // Allow frontend access
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      })
       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
     console.error(err);
