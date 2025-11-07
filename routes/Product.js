@@ -1,9 +1,7 @@
-import express from 'express';
-import Product from "../models/products.js"; 
-
+import express from "express";
+import Product from "../models/Product.js"; // Corrected import
 
 const router = express.Router();
-
 
 router.get("/", async (req, res) => {
   try {
