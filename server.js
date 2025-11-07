@@ -52,6 +52,10 @@ app.use("/seller", SellerRoutes);
 app.use("/cart", CartRoutes);
 app.use("/products", productRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Backend is working!");
+});
+
 app.post("/logout", (req, res) => {
   res
     .clearCookie("token", {
