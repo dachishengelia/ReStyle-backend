@@ -42,7 +42,7 @@ app.use("/products", productRoutes);
 
 app.get("/", (req, res) => {
   res.send(`
-    <div style= color: black; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
+    <div style="background-color: black; color: green; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
       Backend is working!
     </div>
   `);
