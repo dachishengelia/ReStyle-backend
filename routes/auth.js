@@ -8,21 +8,36 @@ import connectToDatabase from "../db/connectToDB.js";
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID;
+
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 router.post("/register", async (req, res) => {
   const { username, email, password, role } = req.body;
-  if (!username || !email || !password) return res.status(400).json({ message: "All fields required" });
+  if (!username || !email || !password)
+    return res.status(400).json({ message: "All fields required" });
+
   try {
     await connectToDatabase();
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+    if (existingUser)
+      return res.status(400).json({ message: "User already exists" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, email, password: hashedPassword, role });
     await user.save();
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
-    res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", maxAge: 7*24*60*60*1000 })
-       .json({ user: { id: user._id, username, email, role } });
+
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({ user: { id: user._id, username, email, role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -31,15 +46,34 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ message: "Email and password required" });
+  if (!email || !password)
+    return res.status(400).json({ message: "Email and password required" });
+
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
-    res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", maxAge: 7*24*60*60*1000 })
-       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, 
+      })
+      .cookie("user", JSON.stringify({ id: user._id, username: user.username, email: user.email, role: user.role }), {
+        httpOnly: false, 
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, 
+      })
+      .json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -47,30 +81,58 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-  res.clearCookie("token", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict" })
-     .json({ message: "Logged out successfully" });
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    })
+    .json({ message: "Logged out successfully" });
 });
 
 router.post("/google-login", async (req, res) => {
   const { id_token } = req.body;
   if (!id_token) return res.status(400).json({ message: "ID token required" });
+
   try {
-    const ticket = await client.verifyIdToken({ idToken: id_token, audience: GOOGLE_CLIENT_ID });
+    const ticket = await client.verifyIdToken({
+      idToken: id_token,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
     const payload = ticket.getPayload();
     const { sub: googleId, email, name, picture } = payload;
+
     await connectToDatabase();
     let user = await User.findOne({ email });
+
     if (!user) {
-      user = new User({ username: name || email.split("@")[0], email, googleId, avatar: picture, role: "buyer" });
+      user = new User({
+        username: name || email.split("@")[0],
+        email,
+        googleId,
+        avatar: picture,
+        role: "buyer",
+      });
       await user.save();
     } else if (!user.googleId) {
       user.googleId = googleId;
       user.avatar = picture || user.avatar;
       await user.save();
     }
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
-    res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", maxAge: 7*24*60*60*1000 })
-       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
+
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
     console.error("Google login error:", err);
     res.status(401).json({ message: "Invalid ID token" });
@@ -78,12 +140,19 @@ router.post("/google-login", async (req, res) => {
 });
 
 router.get("/me", async (req, res) => {
-  const token = req.cookies.token;
-  if (!token) return res.status(401).json({ message: "Not authenticated" });
+  const token = req.cookies.token; 
+  if (!token) {
+    console.error("No token provided in /auth/me");
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id, "username email role").lean();
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      console.error("User not found in /auth/me");
+      return res.status(404).json({ message: "User not found" });
+    }
     res.json({ user });
   } catch (err) {
     console.error("Error verifying token in /auth/me:", err.message);
