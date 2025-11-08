@@ -13,9 +13,24 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
-app.use(cors()); 
+// CORS configuration
+const allowedOrigins = [process.env.FRONTEND_URL]; // add any other frontend URLs here
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // allow requests like Postman / server-to-server where origin is undefined
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true // <--- important to allow cookies / auth headers
+}));
+
 app.use(express.json());
-app.use(express.static('public'))
+app.use(express.static('public'));
 app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
@@ -44,7 +59,7 @@ app.post("/logout", (req, res) => {
     .clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none", // <-- must be "none" for cross-site cookies
     })
     .json({ message: "Logged out successfully" });
 });
