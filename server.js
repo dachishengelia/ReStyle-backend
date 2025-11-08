@@ -13,8 +13,9 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
-app.use(cors()); // Use CORS middleware
+app.use(cors()); 
 app.use(express.json());
+app.use(express.static('public'))
 app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
