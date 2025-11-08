@@ -37,6 +37,14 @@ app.use("/seller", SellerRoutes);
 app.use("/cart", CartRoutes);
 app.use("/products", productRoutes);
 
+app.get("/", (req, res) => {
+  res.send(`
+    <div style="background-color: black; color: lime; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
+      ✅ Backend is working!
+    </div>
+  `);
+});
+
 app.post("/logout", (req, res) => {
   res
     .clearCookie("token", {
