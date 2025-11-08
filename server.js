@@ -41,7 +41,11 @@ app.use("/cart", CartRoutes);
 app.use("/products", productRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Backend is working!");
+  res.send(`
+    <div style="background-color: black; color: green; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
+      Backend is working!
+    </div>
+  `);
 });
 
 app.post("/logout", (req, res) => {
