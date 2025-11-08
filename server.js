@@ -24,7 +24,26 @@ app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
-app.use(cors());
+// ✅ Define allowed origins explicitly
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // Development frontend
+  "https://re-style-frontend-lch8824ed-dachi-shengelias-projects.vercel.app" // Production frontend
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy does not allow access from origin ${origin}`));
+      }
+    },
+    credentials: true, // Allow cookies and credentials
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 mongoose
   .connect(process.env.MONGO_URI)
