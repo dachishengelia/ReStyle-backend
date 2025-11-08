@@ -5,10 +5,10 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-// Models
+
 import User from "./models/User.js";
 
-// Routes
+
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import SellerRoutes from "./routes/seller.js";
@@ -24,8 +24,8 @@ console.log("Frontend URL:", process.env.FRONTEND_URL);
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://re-style-frontend.vercel.app", // Explicitly allow the frontend domain
-    credentials: true, // Allow cookies to be sent
+    origin: process.env.FRONTEND_URL || "https://re-style-frontend.vercel.app", 
+    credentials: true, 
   })
 );
 
@@ -42,7 +42,7 @@ app.use("/products", productRoutes);
 
 app.get("/", (req, res) => {
   res.send(`
-    <div style="background-color: black; color: green; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
+    <div style= color: black; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
       Backend is working!
     </div>
   `);

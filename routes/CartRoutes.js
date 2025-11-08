@@ -4,7 +4,7 @@ import Cart from "../models/Cart.js";
 
 const router = express.Router();
 
-// Get the cart for the authenticated user
+
 router.get("/", isAuth, async (req, res) => {
   try {
     if (!req.userId) {
@@ -18,7 +18,7 @@ router.get("/", isAuth, async (req, res) => {
   }
 });
 
-// Add a product to the cart
+
 router.post("/", isAuth, async (req, res) => {
   const { productId, quantity } = req.body;
   if (!productId || quantity <= 0) {
@@ -49,7 +49,7 @@ router.post("/", isAuth, async (req, res) => {
   }
 });
 
-// Update the quantity of a product in the cart
+
 router.patch("/:productId", isAuth, async (req, res) => {
   const { productId } = req.params;
   const { quantity } = req.body;
@@ -79,7 +79,7 @@ router.patch("/:productId", isAuth, async (req, res) => {
   }
 });
 
-// Remove a product from the cart
+
 router.delete("/:productId", isAuth, async (req, res) => {
   const { productId } = req.params;
 
@@ -99,7 +99,7 @@ router.delete("/:productId", isAuth, async (req, res) => {
   }
 });
 
-// Clear the entire cart
+
 router.delete("/", isAuth, async (req, res) => {
   try {
     const cart = await Cart.findOneAndDelete({ user: req.userId });

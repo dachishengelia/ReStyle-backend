@@ -1,6 +1,6 @@
 import express from "express";
 import User from "../models/User.js";
-import Product from "../models/Product.js"; // Corrected import
+import Product from "../models/Product.js";
 import isAuth, { isAdmin } from "../middlewares/isAuth.middleware.js";
 
 const router = express.Router();
@@ -52,7 +52,7 @@ router.delete("/users/:id", isAuth, isAdmin, async (req, res) => {
   }
 });
 
-// Route to add a product
+
 router.post('/products', async (req, res) => {
   try {
     const { name, price, description, category, sellerId } = req.body;
@@ -62,7 +62,7 @@ router.post('/products', async (req, res) => {
       price,
       description,
       category,
-      sellerId, // Corrected field name
+      sellerId, 
     });
 
     await product.save();
@@ -72,7 +72,7 @@ router.post('/products', async (req, res) => {
   }
 });
 
-// Route to add a product to the cart
+
 router.post('/cart', isAuth, async (req, res) => {
   try {
     const { productId, quantity } = req.body;

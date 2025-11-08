@@ -65,7 +65,7 @@ router.post("/login", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        maxAge: 7 * 24 * 60 * 60 * 1000, 
       })
       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
@@ -134,7 +134,7 @@ router.post("/google-login", async (req, res) => {
 });
 
 router.get("/me", async (req, res) => {
-  const token = req.cookies.token; // Ensure the token is sent as a cookie
+  const token = req.cookies.token; 
   if (!token) {
     console.error("No token provided in /auth/me");
     return res.status(401).json({ message: "Not authenticated" });

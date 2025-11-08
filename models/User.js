@@ -9,12 +9,12 @@ const userSchema = new mongoose.Schema(
     googleId: String,
     cart: [
       {
-        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" }, // Corrected field name
+        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" }, 
         quantity: { type: Number, default: 1 },
       },
     ],
   },
-  { timestamps: true } // Adds createdAt and updatedAt
+  { timestamps: true } 
 );
 
 export default mongoose.model("User", userSchema);

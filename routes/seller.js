@@ -1,5 +1,5 @@
 import express from "express";
-import Product from "../models/Product.js"; // Corrected import
+import Product from "../models/Product.js"; 
 import isAuth, { isSeller } from "../middlewares/isAuth.middleware.js";
 
 const router = express.Router();
@@ -13,7 +13,7 @@ router.post("/products", isAuth, isSeller, async (req, res) => {
       name,
       description,
       price,
-      sellerId: req.userId, // Corrected field name
+      sellerId: req.userId, 
     });
     await product.save();
     res.status(201).json(product);

@@ -10,7 +10,7 @@ const cartSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true } // Adds createdAt and updatedAt fields
+  { timestamps: true } 
 );
 
 export default mongoose.model("Cart", cartSchema);
