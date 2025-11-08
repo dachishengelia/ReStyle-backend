@@ -5,12 +5,6 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-// import Stripe from "stripe";
-
-// Models
-// import User from "./models/User.js";
-// import Product from "./models/products.js";
-
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import SellerRoutes from "./routes/seller.js";
@@ -19,31 +13,11 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
+app.use(cors()); // Use CORS middleware
 app.use(express.json());
 app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
-
-// ✅ Define allowed origins explicitly
-const allowedOrigins = [
-  process.env.FRONTEND_URL, // Development frontend
-  "https://re-style-frontend-lch8824ed-dachi-shengelias-projects.vercel.app" // Production frontend
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS policy does not allow access from origin ${origin}`));
-      }
-    },
-    credentials: true, // Allow cookies and credentials
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
 
 mongoose
   .connect(process.env.MONGO_URI)
