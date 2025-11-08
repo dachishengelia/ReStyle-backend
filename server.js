@@ -24,8 +24,18 @@ console.log("Frontend URL:", process.env.FRONTEND_URL);
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://re-style-frontend.vercel.app", 
-    credentials: true, 
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "https://re-style-frontend.vercel.app",
+        "http://localhost:5173"
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Allow cookies to be sent
   })
 );
 
