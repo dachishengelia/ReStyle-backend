@@ -17,32 +17,20 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Define allowed origins clearly
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://re-style-frontend.vercel.app"
-];
-
+// ✅ Dynamically handle multiple origins in CORS
+const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL];
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow requests like Postman
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error("Not allowed by CORS"));
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy does not allow access from origin ${origin}`));
+      }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-// ✅ Handle OPTIONS preflight requests globally
-app.options("*", cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
 
 mongoose
   .connect(process.env.MONGO_URI)
