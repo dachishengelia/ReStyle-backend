@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ],
+  "env": {
+    "PORT": "3000",
+    "MONGO_URI": "mongodb+srv://dachi:dachi@reschoolcluster.oteu0aa.mongodb.net/?retryWrites=true&w=majority",
+    "JWT_SECRET": "b1c0757902fc45a77892d1c4240a4d5eba1f067d0672e963a77602840023d6fd",
+    "FRONTEND_URL": "http://localhost:5173",
+    "NODE_ENV": "production",
+    "CLOUDINARY_NAME": "ReStyle",
+    "CLOUDINARY_API_KEY": "379251787892332",
+    "CLOUDINARY_API_SECRET": "2yNxV9LP2YkxO3YLsObsotkEaM4"
+  }
+}

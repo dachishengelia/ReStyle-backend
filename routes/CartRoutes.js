@@ -21,6 +21,7 @@ router.get("/", isAuth, async (req, res) => {
 
 router.post("/", isAuth, async (req, res) => {
   const { productId, quantity } = req.body;
+
   if (!productId || quantity <= 0) {
     return res.status(400).json({ message: "Invalid product or quantity" });
   }
