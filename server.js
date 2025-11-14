@@ -13,12 +13,10 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
-// CORS configuration
-const allowedOrigins = [process.env.FRONTEND_URL]; // add any other frontend URLs here
+const allowedOrigins = [process.env.FRONTEND_URL];
 
 app.use(cors({
   origin: function(origin, callback) {
-    // allow requests like Postman / server-to-server where origin is undefined
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -26,7 +24,7 @@ app.use(cors({
     }
     return callback(null, true);
   },
-  credentials: true // <--- important to allow cookies / auth headers
+  credentials: true
 }));
 
 app.use(express.json());
@@ -44,12 +42,12 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
 app.use("/cart", CartRoutes);
-app.use("/products", productRoutes);
+app.use("/api/products", productRoutes);
 
 app.get("/", (req, res) => {
   res.send(`
     <div style="background-color: black; color: lime; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
-      ✅ Backend is working!
+      ✅ Backend is working locally!
     </div>
   `);
 });
@@ -58,11 +56,11 @@ app.post("/logout", (req, res) => {
   res
     .clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // <-- must be "none" for cross-site cookies
+      secure: false,
+      sameSite: "lax",
     })
     .json({ message: "Logged out successfully" });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running locally on port ${PORT}`));
