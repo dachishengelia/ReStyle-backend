@@ -18,10 +18,14 @@ const allowedOrigins = [process.env.FRONTEND_URL, "https://re-style-frontend.ver
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true
+    origin: [
+      "https://re-style-frontend.vercel.app",
+      "https://re-style-frontend-y1tcg2pzi-dachi-shengelias-projects.vercel.app"
+    ],
+    credentials: true,
   })
-)
+);
+
 app.use(express.json())
 app.use(express.static("public"))
 app.use(cookieParser())
