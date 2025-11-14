@@ -16,10 +16,12 @@ const app = express();
 const allowedOrigins = [process.env.FRONTEND_URL, "https://re-style-frontend.vercel.app"];
 
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
-app.use(cookieParser());
+app.use(cors({
+  origin: "*"
+}));
+app.use(express.json())
+app.use(express.static("public"))
+app.use(cookieParser())
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
