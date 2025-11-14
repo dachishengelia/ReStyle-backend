@@ -15,17 +15,8 @@ const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL, "https://re-style-frontend.vercel.app"];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true, // Allow cookies and credentials
-}));
 
+app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 app.use(cookieParser());
