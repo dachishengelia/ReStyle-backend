@@ -33,7 +33,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.static("public"));
-// app.use(cookieParser());
+app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
@@ -48,6 +48,17 @@ app.use("/seller", SellerRoutes);
 app.use("/cart", CartRoutes);
 app.use("/api/products", productRoutes);
 app.use("/checkout", checkoutRoutes);
+
+app.options("*", cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS blocked: " + origin));
+    }
+  },
+  credentials: true,
+}));
 
 
 app.get("/", (req, res) => {
