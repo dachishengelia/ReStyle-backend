@@ -30,11 +30,11 @@ stripeRouter.post('/checkout', isAuth, async (req, res) => {
         price_data: {
           currency: "usd",
           product_data: {
-            name: productName, // dynamically passed from client
-            images: ["https://example.com/hoodie.png"], // optional
+            name: productName, 
+            images: ["https://example.com/hoodie.png"], 
             description,
           },
-          unit_amount: amount, // amount in cents
+          unit_amount: amount,
         },
         quantity: 1,
       },

@@ -13,21 +13,10 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL, 
-  "https://re-style-frontend.vercel.app"
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, 
+    origin: ['https://re-style-frontend.vercel.app'],
+    methods: ["GET", "POST", "PATCH", "DELETE", 'PUT'],
   })
 );
 
