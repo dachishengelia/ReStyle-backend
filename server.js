@@ -15,7 +15,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ['https://re-style-frontend.vercel.app'],
+    origin: '*',
     methods: ["GET", "POST", "PATCH", "DELETE", 'PUT'],
   })
 );
