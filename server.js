@@ -13,22 +13,27 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
-const allowedOrigins = [process.env.FRONTEND_URL, "https://re-style-frontend.vercel.app"];
-
+const allowedOrigins = [
+  process.env.FRONTEND_URL, 
+  "https://re-style-frontend.vercel.app"
+];
 
 app.use(
   cors({
-    origin: [
-      "https://re-style-frontend.vercel.app",
-      "https://re-style-frontend-y1tcg2pzi-dachi-shengelias-projects.vercel.app"
-    ],
-    credentials: true,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, 
   })
 );
 
-app.use(express.json())
-app.use(express.static("public"))
-app.use(cookieParser())
+app.use(express.json());
+app.use(express.static("public"));
+app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
