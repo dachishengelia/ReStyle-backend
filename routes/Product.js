@@ -1,7 +1,7 @@
 import express from "express";
 import Product from "../models/Product.js";
 import isAuth, { isSeller, isAdmin } from "../middlewares/isAuth.middleware.js";
-import { upload } from "../config/cloudinary.config.js";
+// import { upload } from "../config/cloudinary.config.js";
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", isAuth, isSeller, upload.single("image"), async (req, res) => {
+router.post("/", isAuth, isSeller, async (req, res) => {
   const { name, price, description, category } = req.body;
 
   if (!name || !price || !description) {
@@ -28,7 +28,7 @@ router.post("/", isAuth, isSeller, upload.single("image"), async (req, res) => {
       description,
       category,
       sellerId: req.userId,
-      imageUrl: req.file ? req.file.path : null,
+      imageUrl: null, // Commented out cloudinary image handling
     });
 
     await product.save();
