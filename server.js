@@ -4,7 +4,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import checkoutRoutes from "./routes/checkout.js";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import SellerRoutes from "./routes/seller.js";
@@ -36,6 +36,8 @@ app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
 app.use("/cart", CartRoutes);
 app.use("/api/products", productRoutes);
+app.use("/checkout", checkoutRoutes);
+
 
 app.get("/", (req, res) => {
   res.send(`

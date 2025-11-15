@@ -34,7 +34,7 @@ stripeRouter.post('/checkout', isAuth, async (req, res) => {
             images: ["https://example.com/hoodie.png"], 
             description,
           },
-          unit_amount: amount,
+          unit_amount: amount, 
         },
         quantity: 1,
       },
