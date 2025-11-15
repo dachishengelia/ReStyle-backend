@@ -7,7 +7,7 @@ import connectToDatabase from "../db/connectToDB.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
-const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID; // Updated to use the correct variable
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
@@ -22,7 +22,8 @@ router.post("/register", async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const salt = await bcrypt.genSalt(10); // Generate salt for hashing
+    const hashedPassword = await bcrypt.hash(password, salt); // Hash password with salt
     const user = new User({ username, email, password: hashedPassword, role });
     await user.save();
 

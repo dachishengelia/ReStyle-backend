@@ -28,8 +28,12 @@ app.use(
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allow all necessary methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
   })
 );
+
+app.options("*", cors()); // Handle preflight requests
 
 app.use(express.json());
 app.use(express.static("public"));
