@@ -97,14 +97,18 @@ const allowedOrigins = [process.env.FRONTEND_URL, "https://re-style-frontend.ver
 
 app.use(
   cors({
-    origin: [
-      "https://re-style-frontend.vercel.app",
-      "https://re-style-frontend-y1tcg2pzi-dachi-shengelias-projects.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS blocked: " + origin));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], 
+    allowedHeaders: ["Content-Type", "Authorization"], 
   })
 );
-
 app.use(express.json())
 app.use(express.static("public"))
 app.use(cookieParser())
