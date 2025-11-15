@@ -13,16 +13,11 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: '*',
-    methods: ["GET", "POST", "PATCH", "DELETE", 'PUT'],
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 app.use(express.static("public"));
-app.use(cookieParser());
+// app.use(cookieParser());
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
