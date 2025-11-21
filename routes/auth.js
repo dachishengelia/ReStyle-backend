@@ -34,8 +34,8 @@ router.post("/register", async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: true, // Always true on Vercel
-        sameSite: "none", // Required for cross-domain cookies
+        secure: true, // Always true for cross-origin requests
+        sameSite: "none", // Required for cross-origin cookies
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json({ user: { id: user._id, username, email, role } });
@@ -64,14 +64,14 @@ router.post("/login", async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: true, // Always true on Vercel
-        sameSite: "none", // Required for cross-domain cookies
+        secure: true, // Always true for cross-origin requests
+        sameSite: "none", // Required for cross-origin cookies
         maxAge: 7 * 24 * 60 * 60 * 1000, 
       })
       .cookie("user", JSON.stringify({ id: user._id, username: user.username, email: user.email, role: user.role }), {
         httpOnly: false, 
-        secure: true, // Always true on Vercel
-        sameSite: "none", // Required for cross-domain cookies
+        secure: true, // Always true for cross-origin requests
+        sameSite: "none", // Required for cross-origin cookies
         maxAge: 7 * 24 * 60 * 60 * 1000, 
       })
       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
@@ -129,8 +129,8 @@ router.post("/google-login", async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: true, // Always true on Vercel
-        sameSite: "none", // Required for cross-domain cookies
+        secure: true, // Always true for cross-origin requests
+        sameSite: "none", // Required for cross-origin cookies
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
