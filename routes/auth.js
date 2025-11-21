@@ -1,68 +1,165 @@
-import dotenv from "dotenv";
-dotenv.config();
+
 import express from "express";
-import mongoose from "mongoose";
-import cookieParser from "cookie-parser";
-import cors from "cors";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+import User from "../models/User.js";
+import connectToDatabase from "../db/connectToDB.js";
 
-import authRoutes from "./routes/auth.js";
-import adminRoutes from "./routes/admin.js";
-import SellerRoutes from "./routes/seller.js";
-import CartRoutes from "./routes/CartRoutes.js";
-import productRoutes from "./routes/Product.js";
+const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID; // Updated to use the correct variable
 
-const app = express();
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL];
+router.post("/register", async (req, res) => {
+  const { username, email, password, role } = req.body;
+  if (!username || !email || !password)
+    return res.status(400).json({ message: "All fields required" });
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS blocked: " + origin));
-      }
-    },
-    credentials: true, 
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], 
-    allowedHeaders: ["Content-Type", "Authorization"], 
-  })
-);
-app.use(express.json())
-app.use(express.static("public"))
-app.use(cookieParser())
+  try {
+    await connectToDatabase();
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ message: "User already exists" });
 
-console.log("Frontend URL:", process.env.FRONTEND_URL);
+    const salt = await bcrypt.genSalt(10); // Generate salt for hashing
+    const hashedPassword = await bcrypt.hash(password, salt); // Hash password with salt
+    const user = new User({ username, email, password: hashedPassword, role });
+    await user.save();
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
-app.use("/auth", authRoutes);
-app.use("/admin", adminRoutes);
-app.use("/seller", SellerRoutes);
-app.use("/cart", CartRoutes);
-app.use("/api/products", productRoutes);
-
-app.get("/", (req, res) => {
-  res.send(`
-    <div style="background-color: black; color: lime; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
-      ✅ Backend is working locally!
-    </div>
-  `);
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({ user: { id: user._id, username, email, role } });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
-app.post("/logout", (req, res) => {
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password)
+    return res.status(400).json({ message: "Email and password required" });
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, 
+      })
+      .cookie("user", JSON.stringify({ id: user._id, username: user.username, email: user.email, role: user.role }), {
+        httpOnly: false, 
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, 
+      })
+      .json({ user: { id: user._id, username: user.username, email, role: user.role } });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/logout", (req, res) => {
   res
     .clearCookie("token", {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     })
     .json({ message: "Logged out successfully" });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running locally on port ${PORT}`));
+router.post("/google-login", async (req, res) => {
+  const { id_token } = req.body;
+  if (!id_token) return res.status(400).json({ message: "ID token required" });
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: id_token,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    await connectToDatabase();
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = new User({
+        username: name || email.split("@")[0],
+        email,
+        googleId,
+        avatar: picture,
+        role: "buyer",
+      });
+      await user.save();
+    } else if (!user.googleId) {
+      user.googleId = googleId;
+      user.avatar = picture || user.avatar;
+      await user.save();
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({ user: { id: user._id, username: user.username, email, role: user.role } });
+  } catch (err) {
+    console.error("Google login error:", err);
+    res.status(401).json({ message: "Invalid ID token" });
+  }
+});
+
+router.get("/me", async (req, res) => {
+  const token = req.cookies.token; 
+  if (!token) {
+    console.error("No token provided in /auth/me");
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id, "username email role").lean();
+    if (!user) {
+      console.error("User not found in /auth/me");
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ user });
+  } catch (err) {
+    console.error("Error verifying token in /auth/me:", err.message);
+    res.status(401).json({ message: "Invalid token" });
+  }
+});
+
+export default router;
