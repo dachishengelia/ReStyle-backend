@@ -13,11 +13,7 @@ import productRoutes from "./routes/Product.js";
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://re-style-frontend.vercel.app",
-  "https://re-style-frontend-mqiajixrh-dachi-shengelias-projects.vercel.app", // Add this origin
-];
+const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL];
 
 app.use(
   cors({
