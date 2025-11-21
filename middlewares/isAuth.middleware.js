@@ -8,7 +8,7 @@ const isAuth = (req, res, next) => {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, process.env.JWT_SECRET); // Validate token
     req.userId = payload.id;
     req.role = payload.role;
     next();
