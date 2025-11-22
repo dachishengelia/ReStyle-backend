@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/auth.js"; 
 import adminRoutes from "./routes/admin.js";
 import SellerRoutes from "./routes/seller.js";
 import CartRoutes from "./routes/CartRoutes.js";

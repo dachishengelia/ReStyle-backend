@@ -1,4 +1,3 @@
-
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -37,7 +36,7 @@ router.post("/register", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .json({ user: { id: user._id, username, email, role } });
   } catch (err) {
@@ -67,15 +66,9 @@ router.post("/login", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
-      .cookie("user", JSON.stringify({ id: user._id, username: user.username, email: user.email, role: user.role }), {
-        httpOnly: false, 
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
-      })
-      .json({ user: { id: user._id, username: user.username, email, role: user.role } });
+      .json({ user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -132,7 +125,7 @@ router.post("/google-login", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
