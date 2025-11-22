@@ -4,12 +4,8 @@ import Cart from "../models/Cart.js";
 
 const router = express.Router();
 
-
 router.get("/", isAuth, async (req, res) => {
   try {
-    if (!req.userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
     const cart = await Cart.findOne({ user: req.userId }).populate("products.product");
     if (!cart) return res.status(404).json({ message: "Cart not found" });
     res.json(cart);
@@ -17,7 +13,6 @@ router.get("/", isAuth, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 router.post("/", isAuth, async (req, res) => {
   const { productId, quantity } = req.body;
@@ -50,7 +45,6 @@ router.post("/", isAuth, async (req, res) => {
   }
 });
 
-
 router.patch("/:productId", isAuth, async (req, res) => {
   const { productId } = req.params;
   const { quantity } = req.body;
@@ -80,7 +74,6 @@ router.patch("/:productId", isAuth, async (req, res) => {
   }
 });
 
-
 router.delete("/:productId", isAuth, async (req, res) => {
   const { productId } = req.params;
 
@@ -99,7 +92,6 @@ router.delete("/:productId", isAuth, async (req, res) => {
     res.status(500).json({ message: "Failed to remove product from cart" });
   }
 });
-
 
 router.delete("/", isAuth, async (req, res) => {
   try {
