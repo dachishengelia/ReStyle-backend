@@ -15,7 +15,11 @@ import profileRoutes from "./routes/profile.js";
 const app = express();
 
 // --- CORS Configuration ---
-const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL];
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // Local frontend
+  process.env.FRONTEND_VERCEL_URL, // Vercel frontend
+];
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -25,9 +29,9 @@ app.use(
         callback(new Error("CORS blocked: " + origin));
       }
     },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Allow cookies to be sent with requests
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allowed HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
   })
 );
 
