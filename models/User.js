@@ -1,20 +1,11 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
-  {
-    username: String,
-    email: { type: String, unique: true },
-    password: String,
-    role: { type: String, enum: ["buyer", "seller", "admin"], default: "buyer" },
-    googleId: String,
-    cart: [
-      {
-        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" }, 
-        quantity: { type: Number, default: 1 },
-      },
-    ],
-  },
-  { timestamps: true } 
-);
+const UserSchema = new mongoose.Schema({
+  username: String,
+  email: String,
+  password: String,
+  role: { type: String, default: "user" },
+  avatar: { type: String, default: "/default-avatar.png" },
+});
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model("User", UserSchema);

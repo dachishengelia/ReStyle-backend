@@ -4,7 +4,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import profileRoutes from "./routes/profile.js";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import SellerRoutes from "./routes/seller.js";
@@ -14,19 +14,23 @@ import productRoutes from "./routes/Product.js";
 const app = express();
 
 // CORS configuration
-const allowedOrigins = [process.env.FRONTEND_URL]; // add any other frontend URLs here
+const allowedOrigins = [
+  process.env.FRONTEND_URL,         // localhost
+  process.env.FRONTEND_VERCEL_URL   // Vercel frontend
+];
 
 app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests like Postman / server-to-server where origin is undefined
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+  origin: (origin, callback) => {
+    // allow requests with no origin (like Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
     }
-    return callback(null, true);
   },
-  credentials: true // <--- important to allow cookies / auth headers
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 }));
 
 app.use(express.json());
@@ -45,7 +49,7 @@ app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
 app.use("/cart", CartRoutes);
 app.use("/products", productRoutes);
-
+app.use("/profile", profileRoutes);
 app.get("/", (req, res) => {
   res.send(`
     <div style="background-color: black; color: lime; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
