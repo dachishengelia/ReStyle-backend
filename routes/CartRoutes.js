@@ -17,7 +17,13 @@ router.get("/", isAuth, async (req, res) => {
       return res.status(200).json({ products: [], total: 0 });
     }
 
-    const total = cart.products.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    const total = cart.products.reduce((sum, item) => {
+      if (item.product) {
+        return sum + item.product.price * item.quantity;
+      }
+      return sum;
+    }, 0);
+
     res.json({ products: cart.products, total });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch cart", error: err.message });

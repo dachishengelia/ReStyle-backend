@@ -26,7 +26,9 @@ export default function CartPage() {
             >
               <div>
                 <h3 className="font-semibold text-lg">{item.product?.name || "Unnamed Product"}</h3>
-                <p className="text-gray-500">{item.product?.price ? `${item.product.price} GEL` : "Price not available"}</p>
+                <p className="text-gray-500">
+                  {item.product?.price ? `${item.product.price} GEL` : "Price not available"}
+                </p>
               </div>
               <button
                 onClick={() => handleRemove(item._id)}
