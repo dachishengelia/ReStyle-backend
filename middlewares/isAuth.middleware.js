@@ -23,4 +23,11 @@ export const isSeller = (req, res, next) => {
   next();
 };
 
+export const isAdmin = (req, res, next) => {
+  if (req.role !== "admin") {
+    return res.status(403).json({ message: "Access denied: Admin role required" });
+  }
+  next();
+};
+
 export default isAuth;
