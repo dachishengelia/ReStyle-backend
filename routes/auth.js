@@ -8,7 +8,7 @@ import { upload } from "../config/cloudinary.config.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
-const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID; 
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
@@ -51,7 +51,8 @@ router.post("/register", async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const salt = await bcrypt.genSalt(10); 
+    const hashedPassword = await bcrypt.hash(password, salt);
     const user = new User({ username, email, password: hashedPassword, role });
     await user.save();
 
@@ -64,7 +65,7 @@ router.post("/register", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .json({ user: { id: user._id, username, email, role } });
   } catch (err) {
@@ -92,17 +93,11 @@ router.post("/login", async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
+        secure: process.env.NODE_ENV === "production", // Ensure secure cookies in production
+        sameSite: "strict", // Prevent CSRF
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
-      .cookie("user", JSON.stringify({ id: user._id, username: user.username, email: user.email, role: user.role }), {
-        httpOnly: false, 
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
-      })
-      .json({ user: { id: user._id, username: user.username, email, role: user.role } });
+      .json({ user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -159,7 +154,7 @@ router.post("/google-login", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
