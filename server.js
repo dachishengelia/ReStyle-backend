@@ -10,6 +10,7 @@ import adminRoutes from "./routes/admin.js";
 import SellerRoutes from "./routes/seller.js";
 import CartRoutes from "./routes/CartRoutes.js";
 import productRoutes from "./routes/Product.js";
+import profileRoutes from "./routes/profile.js";
 
 const app = express();
 
@@ -24,9 +25,9 @@ app.use(
         callback(new Error("CORS blocked: " + origin));
       }
     },
-    credentials: true, // Allow cookies to be sent with requests
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Allowed HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -47,6 +48,7 @@ app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
 app.use("/cart", CartRoutes);
 app.use("/api/products", productRoutes);
+app.use("/profile", profileRoutes);
 
 // Health check
 app.get("/", (req, res) => {

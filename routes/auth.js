@@ -4,13 +4,40 @@ import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 import connectToDatabase from "../db/connectToDB.js";
-import isAuth from "../middlewares/isAuth.middleware.js"; // Add this line
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID; 
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+router.patch("/me/username", async (req, res) => {
+  const { username, email, password } = req.body;
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ message: "Not authenticated" });
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Verify email & password
+    if (user.email !== email) return res.status(400).json({ message: "Incorrect email" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
+
+    user.username = username;
+    await user.save();
+
+    res.json({
+      user: { id: user._id, username: user.username, email: user.email, role: user.role, avatar: user.avatar },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 router.post("/register", async (req, res) => {
   const { username, email, password, role } = req.body;

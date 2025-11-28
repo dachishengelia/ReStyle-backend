@@ -1,4 +1,4 @@
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import dotenv from "dotenv";
@@ -12,11 +12,11 @@ cloudinary.config({
 });
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+  cloudinary,
   params: {
     folder: "uploads",
     allowed_formats: ["jpg", "png", "svg", "jpeg"],
-    transformation: [{ width: 500, height: 500, crop: "limit" }], // Optional: Resize images
+    transformation: [{ width: 500, height: 500, crop: "limit" }],
   },
 });
 

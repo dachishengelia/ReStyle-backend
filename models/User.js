@@ -1,23 +1,17 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema(
-  {
-    username: String,
-    email: { type: String, unique: true },
-    password: String,
-    role: { type: String, enum: ["buyer", "seller", "admin"], default: "buyer" },
-    googleId: String,
-    cart: [
-      {
-        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" }, 
-        quantity: { type: Number, default: 1 },
-      },
-    ],
-  },
-  { timestamps: true } 
-);
+const UserSchema = new mongoose.Schema({
+  username: String,
+  email: String,
+  password: String,
+  role: { type: String, default: "user" },
+  avatar: { type: String, default: "/default-avatar.png" },
+});
 
+<<<<<<< HEAD
+export default mongoose.model("User", UserSchema);
+=======
 // Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -36,3 +30,4 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 export default mongoose.model("User", userSchema);
+>>>>>>> f950db042b7498f64750b261e1b0695cbdf4d749
