@@ -16,18 +16,9 @@ const isAuth = (req, res, next) => {
   }
 };
 
-export const isAdmin = (req, res, next) => {
-  if (req.role !== "admin") {
-    console.error("Access denied: Admin role required");
-    return res.status(403).json({ message: "Forbidden" });
-  }
-  next();
-};
-
 export const isSeller = (req, res, next) => {
   if (req.role !== "seller") {
-    console.error("Access denied: Seller role required");
-    return res.status(403).json({ message: "Forbidden" });
+    return res.status(403).json({ message: "Access denied: Seller role required" });
   }
   next();
 };

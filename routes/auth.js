@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 import connectToDatabase from "../db/connectToDB.js";
+import isAuth from "../middlewares/isAuth.middleware.js"; // Add this line
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
@@ -76,13 +77,13 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-  res
-    .clearCookie("token", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    })
-    .json({ message: "Logged out successfully" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+    sameSite: "none",
+    path: "/", // Ensure the cookie is cleared for the entire domain
+  });
+  return res.status(200).json({ message: "Logged out successfully" });
 });
 
 router.post("/google-login", async (req, res) => {
@@ -152,6 +153,39 @@ router.get("/me", async (req, res) => {
   } catch (err) {
     console.error("Error verifying token in /auth/me:", err.message);
     res.status(401).json({ message: "Invalid token" });
+  }
+});
+
+router.patch("/profile", isAuth, async (req, res) => {
+  const { username, currentPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update username if provided
+    if (username) {
+      user.username = username;
+    }
+
+    // Update password if both current and new passwords are provided
+    if (currentPassword && newPassword) {
+      const isMatch = await user.matchPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    await user.save();
+    res.json({ message: "Profile updated successfully", user: { username: user.username, email: user.email } });
+  } catch (err) {
+    console.error("Error updating profile:", err.message);
+    res.status(500).json({ message: "Failed to update profile" });
   }
 });
 

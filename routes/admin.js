@@ -52,10 +52,13 @@ router.delete("/users/:id", isAuth, isAdmin, async (req, res) => {
   }
 });
 
-
 router.post('/products', async (req, res) => {
   try {
     const { name, price, description, category, sellerId } = req.body;
+
+    if (!sellerId) {
+      return res.status(400).json({ message: "Seller ID is required" });
+    }
 
     const product = new Product({
       name,
@@ -72,21 +75,20 @@ router.post('/products', async (req, res) => {
   }
 });
 
-
 router.post('/cart', isAuth, async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
+    const { product, quantity } = req.body;
 
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const existingItem = user.cart.find(item => item.productId.toString() === productId);
+    const existingItem = user.cart.find(item => item.product.toString() === product);
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
-      user.cart.push({ productId, quantity });
+      user.cart.push({ product, quantity });
     }
 
     await user.save();

@@ -24,17 +24,20 @@ router.post("/products", isAuth, isSeller, async (req, res) => {
 
 router.get("/products", isAuth, isSeller, async (req, res) => {
   try {
-    const products = await Product.find({ seller: req.userId }).lean();
+    const products = await Product.find({ sellerId: req.userId }).lean();
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: "No products found for this seller" });
+    }
     res.json(products);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Failed to fetch seller products", error: err.message });
   }
 });
 
 router.patch("/products/:id", isAuth, isSeller, async (req, res) => {
   try {
     const product = await Product.findOneAndUpdate(
-      { _id: req.params.id, seller: req.userId },
+      { _id: req.params.id, sellerId: req.userId },
       req.body,
       { new: true }
     );
