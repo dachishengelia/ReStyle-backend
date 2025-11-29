@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 import connectToDatabase from "../db/connectToDB.js";
+import isAuth from "../middlewares/isAuth.middleware.js"; // Add this line
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
@@ -59,14 +60,12 @@ router.post("/register", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      })
-      .json({ user: { id: user._id, username, email, role } });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "none", // Required for cross-origin requests
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    }).json({ user: { id: user._id, username, email, role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -89,14 +88,12 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      })
-      .json({ user: { id: user._id, username: user.username, email: user.email, role: user.role } });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "none", // Required for cross-origin requests
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    }).json({ user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -148,14 +145,12 @@ router.post("/google-login", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      })
-      .json({ user: { id: user._id, username: user.username, email, role: user.role } });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "none", // Required for cross-origin requests
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    }).json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
     console.error("Google login error:", err);
     res.status(401).json({ message: "Invalid ID token" });

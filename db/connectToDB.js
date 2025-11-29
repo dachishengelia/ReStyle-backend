@@ -4,7 +4,10 @@ let cached = global.mongoose;
 if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
 export default async function connectToDatabase() {
-  const MONGO_URI = process.env.MONGO_URI;
+  const MONGO_URI = process.env.NODE_ENV === "production"
+    ? process.env.MONGO_URI_PROD // Use production URI on Vercel
+    : process.env.MONGO_URI; // Use local URI for development
+
   if (!MONGO_URI) throw new Error("MONGO_URI is not defined");
 
   if (cached.conn) return cached.conn;
@@ -12,8 +15,8 @@ export default async function connectToDatabase() {
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(MONGO_URI, {
-        // useNewUrlParser: true,
-        // useUnifiedTopology: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
       })
       .then((mongoose) => mongoose);
   }
