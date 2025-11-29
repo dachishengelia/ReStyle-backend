@@ -17,8 +17,8 @@ const app = express();
 // --- CORS Configuration ---
 const allowedOrigins = [
   process.env.FRONTEND_URL, // Local frontend
-  process.env.FRONTEND_VERCEL_URL, // Vercel frontend (primary)
-  "https://re-style-frontend-bqhiq7l9i-dachi-shengelias-projects.vercel.app", // New frontend URL
+  process.env.FRONTEND_VERCEL_URL, // Vercel frontend
+  "https://re-style-frontend-bqhiq7l9i-dachi-shengelias-projects.vercel.app", // Additional frontend URL
 ];
 
 app.use(
