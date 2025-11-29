@@ -19,6 +19,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL, // Local frontend
   process.env.FRONTEND_VERCEL_URL, // Vercel frontend
   "https://re-style-frontend-bqhiq7l9i-dachi-shengelias-projects.vercel.app", // Additional frontend URL
+  "https://re-style-frontend-ndt07jefn-dachi-shengelias-projects.vercel.app", // New frontend URL
 ];
 
 app.use(
