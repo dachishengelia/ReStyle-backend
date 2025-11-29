@@ -72,8 +72,8 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
-  console.log("Login request received:", { headers: req.headers, body: req.body });
+router.post("/log-in", async (req, res) => {
+  console.log("Log-in request received:", { headers: req.headers, body: req.body });
 
   const { email, password } = req.body;
   if (!email || !password) {
@@ -98,7 +98,7 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
-    console.log("Login successful for user:", email);
+    console.log("Log-in successful for user:", email);
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
@@ -106,7 +106,7 @@ router.post("/login", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     }).json({ user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
-    console.error("Error during login:", err.message);
+    console.error("Error during log-in:", err.message);
     res.status(500).json({ message: "Server error" });
   }
 });
