@@ -171,7 +171,7 @@ router.post("/google-login", async (req, res) => {
 router.get("/me", async (req, res) => {
   const token = req.cookies.token; 
   if (!token) {
-    console.error("No token provided in /auth/me");
+    // console.error("No token provided in /auth/me");
     return res.status(401).json({ message: "Not authenticated" });
   }
 
@@ -179,12 +179,12 @@ router.get("/me", async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id, "username email role").lean();
     if (!user) {
-      console.error("User not found in /auth/me");
+      // console.error("User not found in /auth/me");
       return res.status(404).json({ message: "User not found" });
     }
     res.json({ user });
   } catch (err) {
-    console.error("Error verifying token in /auth/me:", err.message);
+    // console.error("Error verifying token in /auth/me:", err.message);
     res.status(401).json({ message: "Invalid token" });
   }
 });

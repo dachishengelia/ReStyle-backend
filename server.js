@@ -10,34 +10,16 @@ import adminRoutes from "./routes/admin.js";
 import SellerRoutes from "./routes/seller.js";
 import CartRoutes from "./routes/CartRoutes.js";
 import productRoutes from "./routes/Product.js";
+import connectToDb from "./db/connectToDB.js";
 
 const app = express();
 
-const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS blocked: " + origin));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], 
-    allowedHeaders: ["Content-Type", "Authorization"], 
-  })
-);
-app.use(express.json())
-app.use(express.static("public"))
-app.use(cookieParser())
+app.use(cors({origin: [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL], credentials: true}));
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.static("public"));
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
-
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
 
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
@@ -47,8 +29,8 @@ app.use("/api/products", productRoutes);
 
 app.get("/", (req, res) => {
   res.send(`
-    <div style="background-color: black; color: lime; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 24px;">
-      ✅ Backend is working locally!
+    <div style="background-color: white; color: black; height: 100vh; display: flex; justify-content: center; align-items: center; font-size: 30px; font: bold;">
+      Backend is working.
     </div>
   `);
 });
@@ -64,4 +46,6 @@ app.post("/logout", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running locally on port ${PORT}`));
+connectToDb().then(() => {
+  app.listen(PORT, () => console.log(`Server running locally on port ${PORT}`));
+});

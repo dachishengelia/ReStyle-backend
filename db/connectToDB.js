@@ -1,26 +1,15 @@
-import mongoose from "mongoose";
 
-let cached = global.mongoose;
-if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
-export default async function connectToDatabase() {
-  const MONGO_URI = process.env.NODE_ENV === "production"
-    ? process.env.MONGO_URI_PROD // Use production URI on Vercel
-    : process.env.MONGO_URI; // Use local URI for development
+import dotenv from 'dotenv'
+import mongoose from 'mongoose'
+dotenv.config()
 
-  if (!MONGO_URI) throw new Error("MONGO_URI is not defined");
+export default async function connectToDb () {
+    try{
+        await mongoose.connect(process.env.MONGO_URI_PROD)
+        console.log('connected successfully')
 
-  if (cached.conn) return cached.conn;
-
-  if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      })
-      .then((mongoose) => mongoose);
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
+    }catch(e){
+        console.log("ver daukavshirda mongodbs")    
+    }
 }
