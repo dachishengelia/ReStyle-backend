@@ -22,7 +22,7 @@ router.patch("/me/username", async (req, res) => {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Verify email & password
+
     if (user.email !== email) return res.status(400).json({ message: "Incorrect email" });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
@@ -60,11 +60,11 @@ router.post("/register", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.cookie("token", token, {
+    res.json("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       sameSite: "none", // Required for cross-origin requests
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
     }).json({ user: { id: user._id, username, email, role } });
   } catch (err) {
     console.error(err);
