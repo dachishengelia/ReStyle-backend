@@ -101,10 +101,12 @@ router.post("/log-in", async (req, res) => {
     console.log("Log-in successful for user:", email);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: "none", // Required for cross-origin requests
+      secure: process.env.NODE_ENV === "production", // true only in production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    }).json({ user: { id: user._id, username: user.username, email: user.email, role: user.role } });
+    });
+
+    res.json({ user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error("Error during log-in:", err.message);
     res.status(500).json({ message: "Server error" });
@@ -158,10 +160,12 @@ router.post("/google-login", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: "none", // Required for cross-origin requests
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    }).json({ user: { id: user._id, username: user.username, email, role: user.role } });
+      // Set 'secure' to 'false' or omit it in development (if not using HTTPS)
+      secure: false, // Or just remove the line
+      // Force sameSite to "none" to allow cross-site cookie setting
+      sameSite: "none", 
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+  }).json({ user: { id: user._id, username: user.username, email, role: user.role } });
   } catch (err) {
     console.error("Google login error:", err);
     res.status(401).json({ message: "Invalid ID token" });
