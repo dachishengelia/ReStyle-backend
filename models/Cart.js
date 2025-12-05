@@ -9,8 +9,9 @@ const cartSchema = new mongoose.Schema(
         quantity: { type: Number, default: 1, min: 1 },
       },
     ],
+    status: { type: String, default: "active" }, // "active", "ordered", etc.
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 export default mongoose.model("Cart", cartSchema);

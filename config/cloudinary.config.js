@@ -1,12 +1,18 @@
-import { v2 as cloudinary } from "cloudinary";
-import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import dotenv from "dotenv";
+import { v2 as cloudinary } from 'cloudinary';
+import multer from 'multer';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config(); // Make sure this is first
+
+console.log("Cloudinary envs:", {
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
@@ -14,9 +20,8 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "uploads",
-    allowed_formats: ["jpg", "png", "svg", "jpeg"],
-    transformation: [{ width: 500, height: 500, crop: "limit" }],
+    folder: 'uploads',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'svg'],
   },
 });
 
@@ -25,11 +30,9 @@ const upload = multer({ storage });
 const deleteFromCloudinary = async (publicId) => {
   try {
     const result = await cloudinary.uploader.destroy(publicId);
-    console.log("Cloudinary delete result:", result);
-    return result;
+    console.log('Deleted from Cloudinary:', result);
   } catch (error) {
-    console.error("Error deleting from Cloudinary:", error);
-    throw new Error("Failed to delete image from Cloudinary");
+    console.error('Error deleting from Cloudinary:', error);
   }
 };
 

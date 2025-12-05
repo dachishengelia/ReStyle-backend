@@ -6,6 +6,7 @@ import { upload } from "../config/cloudinary.config.js";
 
 const router = express.Router();
 
+// --- Get all products ---
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find().populate("sellerId", "username email").lean();
@@ -15,7 +16,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get product by ID
+// --- Get product by ID ---
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -25,9 +26,8 @@ router.get("/:id", async (req, res) => {
 
   try {
     const product = await Product.findById(id).populate("sellerId", "username email");
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
     res.json(product);
   } catch (err) {
     console.error(err);
@@ -35,7 +35,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Get products for the authenticated seller
+// --- Get products for seller ---
 router.get("/seller", isAuth, isSeller, async (req, res) => {
   try {
     const sellerId = req.userId;
@@ -47,6 +47,7 @@ router.get("/seller", isAuth, isSeller, async (req, res) => {
   }
 });
 
+// --- Add new product ---
 router.post("/", isAuth, isSeller, async (req, res) => {
   const { name, price, description, category } = req.body;
 
@@ -61,7 +62,7 @@ router.post("/", isAuth, isSeller, async (req, res) => {
       description,
       category,
       sellerId: req.userId,
-      imageUrl: null, // Commented out cloudinary image handling
+      imageUrl: null,
     });
 
     await product.save();
@@ -71,30 +72,28 @@ router.post("/", isAuth, isSeller, async (req, res) => {
   }
 });
 
-// Endpoint to handle image uploads
-router.post("/upload", upload.single("image"), (req, res) => {
+// --- Upload product image ---
+router.post("/upload", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file || !req.file.path) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
     const imageUrl = req.file.path; // Cloudinary URL
     res.status(200).json({ message: "Image uploaded successfully", imageUrl });
   } catch (err) {
+    console.error("Upload error:", err);
     res.status(500).json({ message: "Failed to upload image", error: err.message });
   }
 });
 
-// DELETE route for sellers to delete their own products
+// --- Delete product (seller) ---
 router.delete("/:id", isAuth, isSeller, async (req, res) => {
   try {
     const product = await Product.findOneAndDelete({
       _id: req.params.id,
-      sellerId: req.userId, // Ensure the product belongs to the seller
+      sellerId: req.userId,
     });
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found or unauthorized" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found or unauthorized" });
 
     res.json({ message: "Product deleted successfully" });
   } catch (err) {
@@ -102,7 +101,7 @@ router.delete("/:id", isAuth, isSeller, async (req, res) => {
   }
 });
 
-// DELETE route for admins to delete any product
+// --- Delete product (admin) ---
 router.delete("/admin/:id", isAuth, isAdmin, async (req, res) => {
   try {
     const productId = req.params.id;
@@ -112,16 +111,60 @@ router.delete("/admin/:id", isAuth, isAdmin, async (req, res) => {
     }
 
     const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     await Product.findByIdAndDelete(productId);
     res.json({ message: "Product deleted successfully by admin" });
   } catch (err) {
     console.error("Error deleting product:", err.message);
     res.status(500).json({ message: "Failed to delete product" });
+  }
+});
+
+// --- Toggle like (per user) ---
+router.post("/:id/like", isAuth, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    const userId = req.user._id; // assuming isAuth sets req.user
+    const index = product.likes.indexOf(userId);
+
+    if (index === -1) {
+      product.likes.push(userId);
+    } else {
+      product.likes.splice(index, 1);
+    }
+
+    await product.save();
+    res.json({ likes: product.likes.length, liked: index === -1 });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- Add comment ---
+router.post("/:id/comment", isAuth, async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ message: "Comment text required" });
+
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    const comment = {
+      userId: req.user._id,
+      username: req.user.username,
+      text,
+      createdAt: new Date(),
+    };
+
+    product.comments.push(comment);
+    await product.save();
+
+    res.json({ comments: product.comments });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
