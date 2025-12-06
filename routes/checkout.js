@@ -18,8 +18,8 @@ router.post("/create-session", async (req, res) => {
       payment_method_types: ["card"],
       mode: "payment",
 
-      success_url: `${process.env.FRONTEND_URL}/success`,
-      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+      success_url: `${process.env.FRONTEND_VERCEL_URL}/success`,
+      cancel_url: `${process.env.FRONTEND_VERCEL_URL}/cancel`,
 
       line_items: [
         {
