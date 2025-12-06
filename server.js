@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import stripeRoutes from "./routes/stripe.js";
+import checkoutRoutes from "./routes/checkout.js";
 
 import express from "express";
 const app = express();
@@ -16,9 +17,14 @@ import CartRoutes from "./routes/CartRoutes.js";
 import productRoutes from "./routes/Product.js";
 import connectToDb from "./db/connectToDB.js";
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_VERCEL_URL,
+  "http://localhost:5173"
+];
 
+// app.use(cors({}));
 app.use(cors({origin: [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL], credentials: true}));
-
 
 app.use(express.json());
 app.use(cookieParser());
@@ -26,14 +32,13 @@ app.use(express.static("public"));
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
-
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
 app.use("/api/cart", CartRoutes);
-
-
 app.use("/api/products", productRoutes);
+app.use("/api/checkout", checkoutRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 app.get("/", (req, res) => {
   res.send(`

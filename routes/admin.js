@@ -52,7 +52,7 @@ router.delete("/users/:id", isAuth, isAdmin, async (req, res) => {
   }
 });
 
-router.post('/products', async (req, res) => {
+router.post('/products', isAuth, isAdmin, async (req, res) => {
   try {
     const { name, price, description, category, sellerId } = req.body;
 
@@ -72,29 +72,6 @@ router.post('/products', async (req, res) => {
     res.status(201).json({ message: 'Product added successfully', product });
   } catch (error) {
     res.status(500).json({ error: 'Failed to add product' });
-  }
-});
-
-router.post('/cart', isAuth, async (req, res) => {
-  try {
-    const { product, quantity } = req.body;
-
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const existingItem = user.cart.find(item => item.product.toString() === product);
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      user.cart.push({ product, quantity });
-    }
-
-    await user.save();
-    res.status(200).json({ message: 'Product added to cart', cart: user.cart });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to add product to cart' });
   }
 });
 

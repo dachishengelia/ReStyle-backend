@@ -127,7 +127,7 @@ router.post("/:id/like", isAuth, async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    const userId = req.user._id; // assuming isAuth sets req.user
+    const userId = req.userId;
     const index = product.likes.indexOf(userId);
 
     if (index === -1) {
@@ -152,9 +152,11 @@ router.post("/:id/comment", isAuth, async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
+    // Fetch user info for username
+    const user = req.userId ? await import("../models/User.js").then(m => m.default.findById(req.userId)) : null;
     const comment = {
-      userId: req.user._id,
-      username: req.user.username,
+      userId: req.userId,
+      username: user?.username || "Unknown",
       text,
       createdAt: new Date(),
     };

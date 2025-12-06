@@ -7,6 +7,13 @@ const UserSchema = new mongoose.Schema({
   password: String,
   role: { type: String, default: "user" },
   avatar: { type: String, default: "/default-avatar.png" },
+  createdAt: { type: Date, default: Date.now },
+  cart: [
+    {
+      product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      quantity: { type: Number, default: 1 }
+    }
+  ]
 });
 
 // Hash password before saving

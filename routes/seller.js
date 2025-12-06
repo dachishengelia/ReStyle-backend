@@ -50,7 +50,7 @@ router.patch("/products/:id", isAuth, isSeller, async (req, res) => {
 
 router.delete("/products/:id", isAuth, isSeller, async (req, res) => {
   try {
-    const product = await Product.findOneAndDelete({ _id: req.params.id, seller: req.userId });
+    const product = await Product.findOneAndDelete({ _id: req.params.id, sellerId: req.userId });
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json({ message: "Product deleted successfully" });
   } catch (err) {
