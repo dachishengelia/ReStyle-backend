@@ -16,7 +16,7 @@ import CartRoutes from "./routes/CartRoutes.js";
 import productRoutes from "./routes/Product.js";
 import connectToDb from "./db/connectToDB.js";
 
-// --- FIXED CORS CONFIG ---
+
 
 
 // const allowedOrigins = [
@@ -44,16 +44,16 @@ import connectToDb from "./db/connectToDB.js";
 
 // app.options("*", cors());
 
-app.use(cors());
+app.use(cors({origin: [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL], credentials: true}));
 
-// Body + cookies
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
-// Routes
+
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
