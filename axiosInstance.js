@@ -1,12 +1,12 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_BASE || "https://re-style-backend.vercel.app",
   withCredentials: true,
 });
 
 
-console.log("Axios Base URL:", import.meta.env.VITE_API_BASE || "http://localhost:3000");
+console.log("Axios Base URL:", import.meta.env.VITE_API_BASE || "https://re-style-backend.vercel.app");
 
 
 axiosInstance.interceptors.response.use(
