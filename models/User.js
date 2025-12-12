@@ -13,6 +13,12 @@ const UserSchema = new mongoose.Schema({
       product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
       quantity: { type: Number, default: 1 }
     }
+  ],
+  favorites: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product"
+    }
   ]
 });
 
@@ -28,12 +34,9 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-// Method to compare passwords
+
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 export default mongoose.model("User", UserSchema);
-
-
-

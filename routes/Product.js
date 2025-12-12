@@ -38,11 +38,19 @@ router.get("/:id", async (req, res) => {
 // --- Get products for seller ---
 router.get("/seller", isAuth, isSeller, async (req, res) => {
   try {
-    const sellerId = req.userId;
+    // Convert to string, fallback to _id
+    const sellerId = req.userId || req.user?._id?.toString();
+
+    // Validate ObjectId
+    if (!sellerId || !mongoose.Types.ObjectId.isValid(sellerId)) {
+      console.error("Invalid sellerId:", sellerId);
+      return res.status(400).json({ message: "Invalid seller ID format" });
+    }
+
     const products = await Product.find({ sellerId }).lean();
     res.json(products);
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching seller products:", err);
     res.status(500).json({ message: "Server error" });
   }
 });

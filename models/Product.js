@@ -13,12 +13,13 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true },
   category: { type: String, required: true },
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  imageUrl: { type: String }, // For Cloudinary integration
+  imageUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
 
-  // New fields
-  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // store user IDs
-  comments: [commentSchema],
+
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], 
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  comments: [commentSchema]
 });
 
 const Product = mongoose.models.Product || mongoose.model("Product", productSchema);

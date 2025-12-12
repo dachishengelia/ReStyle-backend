@@ -5,7 +5,7 @@ import checkoutRoutes from "./routes/checkout.js";
 
 import express from "express";
 const app = express();
-
+import productActionsRoutes from "./routes/productActions.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -22,7 +22,6 @@ const allowedOrigins = [
   process.env.FRONTEND_VERCEL_URL,
   "http://localhost:5173"
 ];
-
 // app.use(cors({}));
 app.use(cors({origin: [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL], credentials: true}));
 
@@ -32,7 +31,9 @@ app.use(express.static("public"));
 
 console.log("Frontend URL:", process.env.FRONTEND_URL);
 
-app.use("/auth", authRoutes);
+
+app.use("/api/auth", authRoutes);
+app.use("/api/product-actions", productActionsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
 app.use("/api/cart", CartRoutes);
