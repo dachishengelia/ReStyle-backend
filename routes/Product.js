@@ -80,25 +80,25 @@
 //   }
 // });
 
-// // --- Upload product image ---
-// router.post("/upload", upload.single("image"), async (req, res) => {
-//   try {
-//     console.log("Upload attempt - req.file:", req.file ? "exists" : "null");
-//     if (!req.file) {
-//       console.log("No file uploaded - req.body:", req.body);
-//       return res.status(400).json({ message: "No file uploaded" });
-//     }
+// --- Upload product image ---
+router.post("/upload", upload.single("image"), async (req, res) => {
+  try {
+    console.log("Upload attempt - req.file:", req.file ? "exists" : "null");
+    if (!req.file) {
+      console.log("No file uploaded - req.body:", req.body);
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
-//     const imageUrl = req.file.path; // Cloudinary URL
-//     console.log("Image uploaded successfully:", imageUrl);
-//     res.status(200).json({ message: "Image uploaded successfully", imageUrl });
-//   } catch (err) {
-//     console.error("Upload error details:", err);
-//     console.error("Error message:", err.message);
-//     console.error("Error stack:", err.stack);
-//     res.status(500).json({ message: "Failed to upload image", error: err.message });
-//   }
-// });
+    const imageUrl = req.file.path; // Cloudinary URL
+    console.log("Image uploaded successfully:", imageUrl);
+    res.status(200).json({ message: "Image uploaded successfully", imageUrl });
+  } catch (err) {
+    console.error("Upload error details:", err);
+    console.error("Error message:", err.message);
+    console.error("Error stack:", err.stack);
+    res.status(500).json({ message: "Failed to upload image", error: err.message });
+  }
+});
 
 // // --- Update product image ---
 // router.patch("/:id/image", isAuth, isSeller, async (req, res) => {
@@ -297,15 +297,6 @@ router.post("/:id/upload", isAuth, isSeller, upload.single("image"), async (req,
     console.error("Upload error:", err);
     res.status(500).json({ message: "Failed to upload image" });
   }
-});
-
-// Temporary route to debug 404 - check if frontend calls /upload without ID
-router.post("/upload", upload.single("image"), async (req, res) => {
-  console.log("DEBUG: Frontend called /api/products/upload without ID");
-  console.log("Headers:", req.headers);
-  console.log("Body:", req.body);
-  console.log("File:", req.file ? "present" : "null");
-  res.status(200).json({ message: "Debug: This route was called. Frontend needs to use /:id/upload" });
 });
 
 // --- Other routes unchanged ---
