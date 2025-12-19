@@ -5,6 +5,7 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 router.post("/create-checkout-session", async (req, res) => {
+  console.log('CLIENT_URL:', process.env.CLIENT_URL);
   const { items } = req.body; // Array of items to buy
   try {
     const session = await stripe.checkout.sessions.create({

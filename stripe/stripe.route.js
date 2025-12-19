@@ -7,6 +7,7 @@ const stripeRouter = Router()
 
 
 stripeRouter.post('/buy-phone', async (req, res) => {
+  console.log('FRONT_END_URL:', process.env.FRONT_END_URL);
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
