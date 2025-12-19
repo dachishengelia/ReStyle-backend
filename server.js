@@ -65,6 +65,14 @@ app.use("/api/product-actions", productActionsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/seller", SellerRoutes);
 app.use("/api/cart", CartRoutes);
+
+// Debug middleware for product routes
+app.use("/api/products", (req, res, next) => {
+  console.log(`DEBUG: ${req.method} ${req.originalUrl}`);
+  console.log("Headers:", req.headers);
+  console.log("Body:", req.body);
+  next();
+});
 app.use("/api/products", productRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/stripe", stripeRoutes);

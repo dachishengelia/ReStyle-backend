@@ -299,6 +299,15 @@ router.post("/:id/upload", isAuth, isSeller, upload.single("image"), async (req,
   }
 });
 
+// Temporary route to debug 404 - check if frontend calls /upload without ID
+router.post("/upload", upload.single("image"), async (req, res) => {
+  console.log("DEBUG: Frontend called /api/products/upload without ID");
+  console.log("Headers:", req.headers);
+  console.log("Body:", req.body);
+  console.log("File:", req.file ? "present" : "null");
+  res.status(200).json({ message: "Debug: This route was called. Frontend needs to use /:id/upload" });
+});
+
 // --- Other routes unchanged ---
 router.patch("/:id/image", isAuth, isSeller, async (req, res) => {
   const { imageUrl } = req.body;
