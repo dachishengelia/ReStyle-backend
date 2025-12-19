@@ -83,13 +83,41 @@ router.post("/", isAuth, isSeller, async (req, res) => {
 // --- Upload product image ---
 router.post("/upload", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    console.log("Upload attempt - req.file:", req.file ? "exists" : "null");
+    if (!req.file) {
+      console.log("No file uploaded - req.body:", req.body);
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
     const imageUrl = req.file.path; // Cloudinary URL
+    console.log("Image uploaded successfully:", imageUrl);
     res.status(200).json({ message: "Image uploaded successfully", imageUrl });
   } catch (err) {
-    console.error("Upload error:", err);
+    console.error("Upload error details:", err);
+    console.error("Error message:", err.message);
+    console.error("Error stack:", err.stack);
     res.status(500).json({ message: "Failed to upload image", error: err.message });
+  }
+});
+
+// --- Update product image ---
+router.patch("/:id/image", isAuth, isSeller, async (req, res) => {
+  try {
+    const { imageUrl } = req.body;
+    if (!imageUrl) return res.status(400).json({ message: "Image URL required" });
+
+    const product = await Product.findOneAndUpdate(
+      { _id: req.params.id, sellerId: req.userId },
+      { imageUrl },
+      { new: true }
+    );
+
+    if (!product) return res.status(404).json({ message: "Product not found or unauthorized" });
+
+    res.json({ message: "Product image updated successfully", product });
+  } catch (err) {
+    console.error("Update product image error:", err);
+    res.status(500).json({ message: "Failed to update product image" });
   }
 });
 

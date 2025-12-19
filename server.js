@@ -24,34 +24,34 @@ const allowedOrigins = [
   "https://re-style-backend.vercel.app"
 ];
 
-app.use(cors({origin: [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL], credentials: true}));
+// app.use(cors({origin: [process.env.FRONTEND_URL, process.env.FRONTEND_VERCEL_URL], credentials: true}));
 // app.use(cors({}));
 // const allowedOrigins = [
 //   process.env.FRONTEND_URL,        // e.g., http://localhost:5173
 //   process.env.FRONTEND_VERCEL_URL  // e.g., https://re-style-frontend.vercel.app
 // ];
 
-// app.use(cors({
-//   origin: function(origin, callback){
-//     // allow requests with no origin (like mobile apps or curl)
-//     if(!origin) return callback(null, true);
+app.use(cors({
+  origin: function(origin, callback){
+    // allow requests with no origin (like mobile apps or curl)
+    if(!origin) return callback(null, true);
 
-//     if(allowedOrigins.indexOf(origin) !== -1){
-//       callback(null, true);
-//     } else {
-//       callback(new Error("CORS not allowed for this origin"), false);
-//     }
-//   },
-//   credentials: true,
-//   methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-// }));
+    if(allowedOrigins.indexOf(origin) !== -1){
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed for this origin"), false);
+    }
+  },
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+}));
 
-// // Handle preflight requests
-// app.options("*", cors({
-//   origin: allowedOrigins,
-//   credentials: true,
-//   methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-// }));
+// Handle preflight requests
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+}));
 
 app.use(express.json());
 app.use(cookieParser());
