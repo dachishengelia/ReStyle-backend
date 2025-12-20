@@ -14,7 +14,6 @@ router.get("/", async (req, res) => {
     const products = await Product.find()
       .populate("sellerId", "username email")
       .lean();
-
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch products" });
@@ -27,15 +26,12 @@ router.get("/", async (req, res) => {
 router.get("/seller", isAuth, isSeller, async (req, res) => {
   try {
     const sellerId = req.userId || req.user?._id?.toString();
-
     if (!sellerId || !mongoose.Types.ObjectId.isValid(sellerId)) {
       return res.status(400).json({ message: "Invalid seller ID format" });
     }
-
     const products = await Product.find({ sellerId }).lean();
     res.json(products);
   } catch (err) {
-    console.error("Error fetching seller products:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -45,7 +41,6 @@ router.get("/seller", isAuth, isSeller, async (req, res) => {
 ======================= */
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid product ID format" });
   }
@@ -55,11 +50,7 @@ router.get("/:id", async (req, res) => {
       "sellerId",
       "username email"
     );
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
+    if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -71,7 +62,6 @@ router.get("/:id", async (req, res) => {
 ======================= */
 router.post("/", isAuth, isSeller, async (req, res) => {
   const { name, price, description, category } = req.body;
-
   if (!name || !price || !description) {
     return res
       .status(400)
@@ -87,7 +77,6 @@ router.post("/", isAuth, isSeller, async (req, res) => {
       sellerId: req.userId,
       imageUrl: null,
     });
-
     await product.save();
     res.status(201).json({ message: "Product added successfully", product });
   } catch (err) {
@@ -103,16 +92,9 @@ router.post("/upload", upload.single("image"), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
-
-    // Cloudinary gives secure URL in path
-    const imageUrl = req.file.path;
-
-    res.status(200).json({
-      message: "Image uploaded successfully",
-      imageUrl,
-    });
+    const imageUrl = req.file.path; // Cloudinary URL
+    res.status(200).json({ message: "Image uploaded successfully", imageUrl });
   } catch (err) {
-    console.error("Upload error:", err);
     res.status(500).json({ message: "Failed to upload image" });
   }
 });
@@ -123,27 +105,17 @@ router.post("/upload", upload.single("image"), async (req, res) => {
 router.patch("/:id/image", isAuth, isSeller, async (req, res) => {
   try {
     const { imageUrl } = req.body;
-
-    if (!imageUrl) {
-      return res.status(400).json({ message: "Image URL required" });
-    }
+    if (!imageUrl) return res.status(400).json({ message: "Image URL required" });
 
     const product = await Product.findOneAndUpdate(
       { _id: req.params.id, sellerId: req.userId },
       { imageUrl },
       { new: true }
     );
+    if (!product)
+      return res.status(404).json({ message: "Product not found or unauthorized" });
 
-    if (!product) {
-      return res
-        .status(404)
-        .json({ message: "Product not found or unauthorized" });
-    }
-
-    res.json({
-      message: "Product image updated successfully",
-      product,
-    });
+    res.json({ message: "Product image updated successfully", product });
   } catch (err) {
     res.status(500).json({ message: "Failed to update product image" });
   }
@@ -158,12 +130,8 @@ router.delete("/:id", isAuth, isSeller, async (req, res) => {
       _id: req.params.id,
       sellerId: req.userId,
     });
-
-    if (!product) {
-      return res
-        .status(404)
-        .json({ message: "Product not found or unauthorized" });
-    }
+    if (!product)
+      return res.status(404).json({ message: "Product not found or unauthorized" });
 
     res.json({ message: "Product deleted successfully" });
   } catch (err) {
@@ -177,15 +145,11 @@ router.delete("/:id", isAuth, isSeller, async (req, res) => {
 router.delete("/admin/:id", isAuth, isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid product ID format" });
     }
-
     const product = await Product.findById(id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     await Product.findByIdAndDelete(id);
     res.json({ message: "Product deleted successfully by admin" });
@@ -200,24 +164,16 @@ router.delete("/admin/:id", isAuth, isAdmin, async (req, res) => {
 router.post("/:id/like", isAuth, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     const userId = req.userId;
     const index = product.likes.indexOf(userId);
 
-    if (index === -1) {
-      product.likes.push(userId);
-    } else {
-      product.likes.splice(index, 1);
-    }
+    if (index === -1) product.likes.push(userId);
+    else product.likes.splice(index, 1);
 
     await product.save();
-    res.json({
-      likes: product.likes.length,
-      liked: index === -1,
-    });
+    res.json({ likes: product.likes.length, liked: index === -1 });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -228,15 +184,11 @@ router.post("/:id/like", isAuth, async (req, res) => {
 ======================= */
 router.post("/:id/comment", isAuth, async (req, res) => {
   const { text } = req.body;
-  if (!text) {
-    return res.status(400).json({ message: "Comment text required" });
-  }
+  if (!text) return res.status(400).json({ message: "Comment text required" });
 
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     const { default: User } = await import("../models/User.js");
     const user = await User.findById(req.userId);
