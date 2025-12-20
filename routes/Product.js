@@ -61,7 +61,7 @@ router.get("/:id", async (req, res) => {
    ADD NEW PRODUCT
 ======================= */
 router.post("/", isAuth, isSeller, async (req, res) => {
-  const { name, price, description, category } = req.body;
+  const { name, price, description, category,imageUrl } = req.body;
   if (!name || !price || !description) {
     return res
       .status(400)
@@ -75,7 +75,7 @@ router.post("/", isAuth, isSeller, async (req, res) => {
       description,
       category,
       sellerId: req.userId,
-      imageUrl: null,
+      imageUrl: imageUrl || "null",
     });
     await product.save();
     res.status(201).json({ message: "Product added successfully", product });
